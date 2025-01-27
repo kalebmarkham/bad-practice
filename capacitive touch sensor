@@ -1,0 +1,37 @@
+#include <Wire.h>
+#include "Adafruit_MPR121.h"
+
+Adafruit_MPR121 cap = Adafruit_MPR121();
+
+// variables
+uint16_t lastTouched = 0; // track last touch sttate
+int touchCount = 0;       // running count of touches
+
+void setup() {
+  Serial.begin(9600);
+
+
+  if (!cap.begin(0x5A)) {
+    Serial.println("MPR121 not found, check wiring!");
+    while (1);
+  }
+  Serial.println("MPR121 found!");
+}
+
+void loop() {
+  // get current touch state
+  uint16_t currentTouched = cap.touched();
+
+  // check if the foil is touched
+  if ((currentTouched & (1 << 0)) && !(lastTouched & (1 << 0))) {
+    touchCount++; // increment touch count
+    Serial.print("Touch detected! Total touches: ");
+    Serial.println(touchCount);
+  }
+
+  // update last touched state
+  lastTouched = currentTouched;
+
+  // small delay 
+  delay(100);
+}
